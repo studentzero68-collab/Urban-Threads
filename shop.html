@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | Urban Threads</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="nav">
+        <a href="index.html" class="nav-logo">Urban Threads</a>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a href="login.html" id="auth-link">Login</a>
+        </nav>
+    </header>
+
+    <section class="shop-header">
+        <h1>Shop</h1>
+        <div class="category-filter" role="group" aria-label="Filter by category">
+            <button type="button" class="filter-btn active" data-category="all">All</button>
+            <button type="button" class="filter-btn" data-category="Hoodies">Hoodies</button>
+            <button type="button" class="filter-btn" data-category="T-shirts">T-shirts</button>
+            <button type="button" class="filter-btn" data-category="Sneakers">Sneakers</button>
+            <button type="button" class="filter-btn" data-category="Accessories">Accessories</button>
+        </div>
+    </section>
+
+    <section class="product-grid" id="product-grid">
+        <!-- product cards will be inserted here dynamically from Firestore -->
+        <p class="loading-msg">Loading products...</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Urban Threads</p>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
