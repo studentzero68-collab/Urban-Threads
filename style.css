@@ -104,6 +104,80 @@ footer {
   font-size: 0.85rem;
 }
 
+/* AUTH */
+auth-section,
+.auth-section {
+  padding: 72px 24px 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.auth-tab {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.auth-tab.active {
+  background: var(--acid);
+  color: var(--bg);
+  border-color: var(--acid);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-form.hidden {
+  display: none;
+}
+
+.auth-form label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.auth-form input {
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #111;
+  color: var(--text);
+}
+
+.auth-submit {
+  margin-top: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-error {
+  min-height: 1.2rem;
+  color: #ff8f8f;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 640px) {
   .nav {
     padding: 16px 20px;
