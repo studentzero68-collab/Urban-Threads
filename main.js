@@ -15,24 +15,45 @@ import {
 const FALLBACK_PRODUCTS = [
   {
     id: 'fallback-1',
-    name: 'Signature Hoodie',
+    name: 'Royal Signature Hoodie',
     category: 'Hoodies',
     price: 1299,
     image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'fallback-2',
-    name: 'Street Tee',
+    name: 'Courtline Tee',
     category: 'T-shirts',
     price: 699,
     image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'fallback-3',
-    name: 'Court Runner',
+    name: 'Apex Runner',
     category: 'Sneakers',
     price: 1899,
     image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 'fallback-4',
+    name: 'Velocity Cap',
+    category: 'Accessories',
+    price: 449,
+    image: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 'fallback-5',
+    name: 'Monarch Jacket',
+    category: 'Hoodies',
+    price: 1599,
+    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 'fallback-6',
+    name: 'Metro Trainer',
+    category: 'Sneakers',
+    price: 2199,
+    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
   },
 ];
 
@@ -131,6 +152,7 @@ async function loadProducts(category = 'all') {
         card.className = 'product-card';
 
         card.innerHTML = `
+          <span class="product-badge">New</span>
           <img class="product-image" src="${product.image}" alt="${product.name}">
           <div class="product-info">
             <p class="product-category">${product.category}</p>
@@ -156,6 +178,7 @@ async function loadProducts(category = 'all') {
       card.className = 'product-card';
 
       card.innerHTML = `
+        <span class="product-badge">New</span>
         <img class="product-image" src="${product.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'}" alt="${product.name || 'Product'}">
         <div class="product-info">
           <p class="product-category">${product.category || 'General'}</p>
@@ -168,7 +191,28 @@ async function loadProducts(category = 'all') {
       productGrid.appendChild(card);
     });
   } catch (error) {
-    productGrid.innerHTML = `<p class="loading-msg">Unable to load products: ${error.message}</p>`;
+    productGrid.innerHTML = '';
+    FALLBACK_PRODUCTS.filter((product) => category === 'all' || product.category === category).forEach((product) => {
+      const card = document.createElement('article');
+      card.className = 'product-card';
+
+      card.innerHTML = `
+        <span class="product-badge">New</span>
+        <img class="product-image" src="${product.image}" alt="${product.name}">
+        <div class="product-info">
+          <p class="product-category">${product.category}</p>
+          <h3 class="product-name">${product.name}</h3>
+          <p class="product-price">R ${Number(product.price || 0).toFixed(2)}</p>
+          <button type="button" class="add-to-cart-btn">Add to cart</button>
+        </div>
+      `;
+
+      productGrid.appendChild(card);
+    });
+
+    if (!productGrid.querySelector('.product-card')) {
+      productGrid.innerHTML = '<p class="loading-msg">No products available yet.</p>';
+    }
   }
 }
 
