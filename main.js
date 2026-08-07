@@ -13,48 +13,9 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
 
 const FALLBACK_PRODUCTS = [
-  {
-    id: 'fallback-1',
-    name: 'Royal Signature Hoodie',
-    category: 'Hoodies',
-    price: 1299,
-    image: 'https://thefoschini.vtexassets.com/arquivos/ids/226170928-800-1067?v=639134838353270000&width=800&height=1067&aspect=true',
-  },
-  {
-    id: 'fallback-2',
-    name: 'Courtline Tee',
-    category: 'T-shirts',
-    price: 699,
-    image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 'fallback-3',
-    name: 'Apex Runner',
-    category: 'Sneakers',
-    price: 1899,
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 'fallback-4',
-    name: 'Velocity Cap',
-    category: 'Accessories',
-    price: 449,
-    image: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 'fallback-5',
-    name: 'Monarch Jacket',
-    category: 'Hoodies',
-    price: 1599,
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 'fallback-6',
-    name: 'Metro Trainer',
-    category: 'Sneakers',
-    price: 2199,
-    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
-  },
+  { id: 'fallback-1', name: 'Royal Signature Hoodie', category: 'Hoodies', price: 1299, image: 'https://thefoschini.vtexassets.com/arquivos/ids/226170928-800-1067?v=639134838353270000&width=800&height=1067&aspect=true' },
+  { id: 'fallback-2', name: 'Courtline Tee', category: 'T-shirts', price: 699, image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80' },
+  { id: 'fallback-3', name: 'Apex Runner', category: 'Sneakers', price: 1899, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80' },
 ];
 
 const authLink = document.getElementById('auth-link');
@@ -64,17 +25,117 @@ const loginError = document.getElementById('login-error');
 const signupError = document.getElementById('signup-error');
 const tabs = document.querySelectorAll('.auth-tab');
 const productGrid = document.getElementById('product-grid');
+const cartContent = document.getElementById('cart-content');
 
+let currentUser = null;
+
+// ---------- CART (localStorage, per browser) ----------
+function getCart() {
+  return JSON.parse(localStorage.getItem('cart')) || [];
+}
+
+function saveCart(cart) {
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function addToCart(product) {
+  const cart = getCart();
+  const existing = cart.find((item) => item.id === product.id);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
+  }
+
+  saveCart(cart);
+  renderCart();
+}
+
+function changeQty(id, delta) {
+  const cart = getCart();
+  const item = cart.find((i) => i.id === id);
+  if (!item) return;
+
+  item.qty += delta;
+  const updated = item.qty <= 0 ? cart.filter((i) => i.id !== id) : cart;
+  saveCart(updated);
+  renderCart();
+}
+
+function removeFromCart(id) {
+  const cart = getCart().filter((item) => item.id !== id);
+  saveCart(cart);
+  renderCart();
+}
+
+function renderCart() {
+  if (!cartContent) return;
+
+  // gate: only logged-in users can view the cart
+  if (!currentUser) {
+    cartContent.innerHTML = `
+      <div class="cart-locked">
+        <p>You need to be logged in to view your cart.</p>
+        <p><a href="login.html">Log in or sign up</a></p>
+      </div>
+    `;
+    return;
+  }
+
+  const cart = getCart();
+
+  if (cart.length === 0) {
+    cartContent.innerHTML = '<p class="loading-msg">Your cart is empty.</p>';
+    return;
+  }
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  cartContent.innerHTML = `
+    ${cart.map((item) => `
+      <div class="cart-item">
+        <img src="${item.image}" alt="${item.name}">
+        <div class="cart-item-info">
+          <h3>${item.name}</h3>
+          <p>R ${item.price.toFixed(2)} each</p>
+        </div>
+        <div class="cart-qty">
+          <button type="button" data-action="decrease" data-id="${item.id}">-</button>
+          <span>${item.qty}</span>
+          <button type="button" data-action="increase" data-id="${item.id}">+</button>
+        </div>
+        <button type="button" class="cart-remove" data-action="remove" data-id="${item.id}">Remove</button>
+      </div>
+    `).join('')}
+    <div class="cart-summary">
+      <span>Total</span>
+      <span class="cart-total">R ${total.toFixed(2)}</span>
+    </div>
+  `;
+
+  cartContent.querySelectorAll('[data-action]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      if (btn.dataset.action === 'increase') changeQty(id, 1);
+      if (btn.dataset.action === 'decrease') changeQty(id, -1);
+      if (btn.dataset.action === 'remove') removeFromCart(id);
+    });
+  });
+}
+
+// ---------- AUTH ----------
 function setAuthLink(user) {
   if (!authLink) return;
 
   if (user) {
     authLink.textContent = `Logout (${user.email})`;
     authLink.href = '#';
-    authLink.addEventListener('click', handleLogout);
+    authLink.onclick = handleLogout;
   } else {
     authLink.textContent = 'Login';
     authLink.href = 'login.html';
+    authLink.onclick = null;
   }
 }
 
@@ -90,21 +151,15 @@ function toggleAuthForms(activeTab) {
   loginForm.classList.toggle('hidden', !isLogin);
   signupForm.classList.toggle('hidden', isLogin);
 
-  tabs.forEach((tab) => {
-    tab.classList.toggle('active', tab.dataset.tab === activeTab);
-  });
+  tabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.tab === activeTab));
 }
 
 function showAuthError(element, message) {
-  if (element) {
-    element.textContent = message;
-  }
+  if (element) element.textContent = message;
 }
 
 async function handleLoginSubmit(event) {
   event.preventDefault();
-  if (!loginForm) return;
-
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
 
@@ -119,8 +174,6 @@ async function handleLoginSubmit(event) {
 
 async function handleSignupSubmit(event) {
   event.preventDefault();
-  if (!signupForm) return;
-
   const email = document.getElementById('signup-email').value.trim();
   const password = document.getElementById('signup-password').value;
 
@@ -133,6 +186,25 @@ async function handleSignupSubmit(event) {
   }
 }
 
+// ---------- PRODUCTS ----------
+function renderProductCard(product) {
+  const card = document.createElement('article');
+  card.className = 'product-card';
+
+  card.innerHTML = `
+    <img class="product-image" src="${product.image || FALLBACK_PRODUCTS[0].image}" alt="${product.name || 'Product'}">
+    <div class="product-info">
+      <p class="product-category">${product.category || 'General'}</p>
+      <h3 class="product-name">${product.name || 'Untitled product'}</h3>
+      <p class="product-price">R ${Number(product.price || 0).toFixed(2)}</p>
+      <button type="button" class="add-to-cart-btn">Add to cart</button>
+    </div>
+  `;
+
+  card.querySelector('.add-to-cart-btn').addEventListener('click', () => addToCart(product));
+  return card;
+}
+
 async function loadProducts(category = 'all') {
   if (!productGrid) return;
 
@@ -142,77 +214,20 @@ async function loadProducts(category = 'all') {
     const productsRef = collection(db, 'products');
     const q = category === 'all' ? query(productsRef) : query(productsRef, where('category', '==', category));
     const snapshot = await getDocs(q);
-
     const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-    if (!products.length) {
-      productGrid.innerHTML = '';
-      FALLBACK_PRODUCTS.filter((product) => category === 'all' || product.category === category).forEach((product) => {
-        const card = document.createElement('article');
-        card.className = 'product-card';
-
-        card.innerHTML = `
-          <span class="product-badge">New</span>
-          <img class="product-image" src="${product.image}" alt="${product.name}">
-          <div class="product-info">
-            <p class="product-category">${product.category}</p>
-            <h3 class="product-name">${product.name}</h3>
-            <p class="product-price">R ${Number(product.price || 0).toFixed(2)}</p>
-            <button type="button" class="add-to-cart-btn">Add to cart</button>
-          </div>
-        `;
-
-        productGrid.appendChild(card);
-      });
-
-      if (!productGrid.querySelector('.product-card')) {
-        productGrid.innerHTML = '<p class="loading-msg">No products available yet.</p>';
-      }
-      return;
-    }
+    const list = products.length
+      ? products
+      : FALLBACK_PRODUCTS.filter((p) => category === 'all' || p.category === category);
 
     productGrid.innerHTML = '';
-
-    products.forEach((product) => {
-      const card = document.createElement('article');
-      card.className = 'product-card';
-
-      card.innerHTML = `
-        <span class="product-badge">New</span>
-        <img class="product-image" src="${product.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'}" alt="${product.name || 'Product'}">
-        <div class="product-info">
-          <p class="product-category">${product.category || 'General'}</p>
-          <h3 class="product-name">${product.name || 'Untitled product'}</h3>
-          <p class="product-price">R ${Number(product.price || 0).toFixed(2)}</p>
-          <button type="button" class="add-to-cart-btn">Add to cart</button>
-        </div>
-      `;
-
-      productGrid.appendChild(card);
-    });
-  } catch (error) {
-    productGrid.innerHTML = '';
-    FALLBACK_PRODUCTS.filter((product) => category === 'all' || product.category === category).forEach((product) => {
-      const card = document.createElement('article');
-      card.className = 'product-card';
-
-      card.innerHTML = `
-        <span class="product-badge">New</span>
-        <img class="product-image" src="${product.image}" alt="${product.name}">
-        <div class="product-info">
-          <p class="product-category">${product.category}</p>
-          <h3 class="product-name">${product.name}</h3>
-          <p class="product-price">R ${Number(product.price || 0).toFixed(2)}</p>
-          <button type="button" class="add-to-cart-btn">Add to cart</button>
-        </div>
-      `;
-
-      productGrid.appendChild(card);
-    });
+    list.forEach((product) => productGrid.appendChild(renderProductCard(product)));
 
     if (!productGrid.querySelector('.product-card')) {
       productGrid.innerHTML = '<p class="loading-msg">No products available yet.</p>';
     }
+  } catch (error) {
+    productGrid.innerHTML = `<p class="loading-msg">Unable to load products: ${error.message}</p>`;
   }
 }
 
@@ -226,21 +241,16 @@ function wireShopFilters() {
   });
 }
 
+// ---------- INIT ----------
 function initAuth() {
-  if (loginForm) {
-    loginForm.addEventListener('submit', handleLoginSubmit);
-  }
-
-  if (signupForm) {
-    signupForm.addEventListener('submit', handleSignupSubmit);
-  }
-
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => toggleAuthForms(tab.dataset.tab));
-  });
+  if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
+  if (signupForm) signupForm.addEventListener('submit', handleSignupSubmit);
+  tabs.forEach((tab) => tab.addEventListener('click', () => toggleAuthForms(tab.dataset.tab)));
 
   onAuthStateChanged(auth, (user) => {
+    currentUser = user;
     setAuthLink(user);
+    renderCart();
   });
 }
 
