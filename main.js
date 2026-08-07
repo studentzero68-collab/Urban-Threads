@@ -18,7 +18,7 @@ const FALLBACK_PRODUCTS = [
     name: 'Royal Signature Hoodie',
     category: 'Hoodies',
     price: 1299,
-    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
+    image: 'https://thefoschini.vtexassets.com/arquivos/ids/226170928-800-1067?v=639134838353270000&width=800&height=1067&aspect=true',
   },
   {
     id: 'fallback-2',
