@@ -527,3 +527,156 @@ auth-section,
   color: var(--acid);
   font-size: 0.9rem;
 }
+
+/* CATEGORY ADS */
+.category-ads {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+}
+
+.category-ad {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  display: block;
+}
+
+.category-ad img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.category-ad:hover img {
+  transform: scale(1.06);
+}
+
+.category-ad-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(7, 18, 20, 0.9) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+}
+
+.category-ad-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--acid);
+  font-weight: 700;
+}
+
+.category-ad-overlay h3 {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.3rem;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+/* FEEL GOOD SECTION */
+.feel-good {
+  padding: 80px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.feel-good-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--acid);
+  margin-bottom: 12px;
+}
+
+.feel-good h2 {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 2rem;
+  max-width: 640px;
+  margin: 0 auto 48px;
+  line-height: 1.25;
+}
+
+.feel-good-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 32px;
+  text-align: left;
+}
+
+.feel-good-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+}
+
+.feel-good-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--acid);
+  color: var(--bg);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.feel-good-item h4 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.feel-good-item p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* NEW ARRIVALS */
+.new-arrivals {
+  padding: 60px 40px 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow-center {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--acid);
+  margin-bottom: 8px;
+}
+
+.new-arrivals h2 {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 2rem;
+  margin-bottom: 40px;
+}
+
+.new-arrivals .product-grid {
+  text-align: left;
+  padding: 0;
+  margin-bottom: 40px;
+}
+
+.view-all-btn {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .category-ads {
+    grid-template-columns: 1fr;
+  }
+}
