@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
+  sendPasswordResetEmail,
 } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
 import {
   collection,
@@ -22,10 +23,12 @@ const authLink = document.getElementById('auth-link');
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const loginError = document.getElementById('login-error');
+const loginInfo = document.getElementById('login-info');
 const signupError = document.getElementById('signup-error');
 const tabs = document.querySelectorAll('.auth-tab');
 const productGrid = document.getElementById('product-grid');
 const cartContent = document.getElementById('cart-content');
+const forgotPasswordBtn = document.getElementById('forgot-password-btn');
 
 let currentUser = null;
 
@@ -186,6 +189,44 @@ async function handleSignupSubmit(event) {
   }
 }
 
+// ---------- PASSWORD TOGGLE (show/hide) ----------
+function wirePasswordToggles() {
+  document.querySelectorAll('.password-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      button.textContent = isPassword ? 'Hide' : 'Show';
+      button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
+  });
+}
+
+// ---------- FORGOT PASSWORD ----------
+function wireForgotPassword() {
+  if (!forgotPasswordBtn) return;
+
+  forgotPasswordBtn.addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+
+    if (!email) {
+      showAuthError(loginError, 'Enter your email above first, then click "Forgot password?"');
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showAuthError(loginError, '');
+      if (loginInfo) loginInfo.textContent = 'Password reset email sent — check your inbox.';
+    } catch (error) {
+      showAuthError(loginError, error.message || 'Could not send reset email');
+    }
+  });
+}
+
 // ---------- PRODUCTS ----------
 function renderProductCard(product) {
   const card = document.createElement('article');
@@ -246,6 +287,9 @@ function initAuth() {
   if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
   if (signupForm) signupForm.addEventListener('submit', handleSignupSubmit);
   tabs.forEach((tab) => tab.addEventListener('click', () => toggleAuthForms(tab.dataset.tab)));
+
+  wirePasswordToggles();
+  wireForgotPassword();
 
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
