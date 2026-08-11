@@ -246,6 +246,24 @@ function renderProductCard(product) {
   return card;
 }
 
+async function loadHomeFeatured() {
+  const homeGrid = document.getElementById('home-product-grid');
+  if (!homeGrid) return;
+
+  try {
+    const productsRef = collection(db, 'products');
+    const snapshot = await getDocs(query(productsRef));
+    const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    const list = (products.length ? products : FALLBACK_PRODUCTS).slice(0, 3);
+
+    homeGrid.innerHTML = '';
+    list.forEach((product) => homeGrid.appendChild(renderProductCard(product)));
+  } catch (error) {
+    homeGrid.innerHTML = '<p class="loading-msg">Check back soon for new arrivals.</p>';
+  }
+}
+
 async function loadProducts(category = 'all') {
   if (!productGrid) return;
 

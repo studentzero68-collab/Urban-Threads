@@ -347,39 +347,6 @@ auth-section,
   }
 }
 
-/* MARQUEE */
-.marquee {
-  background: var(--acid);
-  overflow: hidden;
-  white-space: nowrap;
-  border-bottom: 1px solid var(--border);
-}
-
-.marquee-track {
-  display: inline-flex;
-  gap: 48px;
-  padding: 10px 0;
-  animation: scroll-marquee 18s linear infinite;
-}
-
-.marquee-track span {
-  font-family: "Archivo Black", sans-serif;
-  font-size: 0.85rem;
-  color: var(--bg);
-  letter-spacing: 0.04em;
-  padding-right: 48px;
-}
-
-@keyframes scroll-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
-}
 /* CART */
 .cart-header {
   padding: 48px 40px 24px;
