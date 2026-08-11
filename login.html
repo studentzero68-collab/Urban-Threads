@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Check-It & Fit-It</title>
+    <title>Login | Urban Threads</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="nav">
-        <a href="index.html" class="nav-logo">Check-It & Fit-It</a>
+        <a href="index.html" class="nav-logo">Urban Threads</a>
         <nav class="nav-links">
             <a href="index.html">Home</a>
             <a href="shop.html">Shop</a>
@@ -29,11 +29,16 @@
                 <input type="email" id="login-email" required autocomplete="email">
 
                 <label for="login-password">Password</label>
-                <input type="password" id="login-password" required autocomplete="current-password">
+                <div class="password-field">
+                    <input type="password" id="login-password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" data-target="login-password" aria-label="Show password">Show</button>
+                </div>
 
                 <p class="auth-error" id="login-error"></p>
+                <p class="auth-info" id="login-info"></p>
 
                 <button type="submit" class="btn auth-submit">Log In</button>
+                <button type="button" class="forgot-password-btn" id="forgot-password-btn">Forgot password?</button>
             </form>
 
             <form id="signup-form" class="auth-form hidden">
@@ -41,7 +46,10 @@
                 <input type="email" id="signup-email" required autocomplete="email">
 
                 <label for="signup-password">Password</label>
-                <input type="password" id="signup-password" required autocomplete="new-password" minlength="6">
+                <div class="password-field">
+                    <input type="password" id="signup-password" required autocomplete="new-password" minlength="6">
+                    <button type="button" class="password-toggle" data-target="signup-password" aria-label="Show password">Show</button>
+                </div>
 
                 <p class="auth-error" id="signup-error"></p>
 
@@ -51,7 +59,7 @@
     </section>
 
     <footer>
-        <p>&copy; 2026 Check-It & Fit-It</p>
+        <p>&copy; 2026 Urban Threads</p>
     </footer>
 
     <script type="module" src="main.js"></script>
