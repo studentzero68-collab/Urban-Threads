@@ -28,9 +28,17 @@ const signupError = document.getElementById('signup-error');
 const tabs = document.querySelectorAll('.auth-tab');
 const productGrid = document.getElementById('product-grid');
 const cartContent = document.getElementById('cart-content');
+const cartBadge = document.getElementById('cart-badge');
 const forgotPasswordBtn = document.getElementById('forgot-password-btn');
 
 let currentUser = null;
+let selectedPaymentMethod = 'pay-now';
+
+const PAYMENT_OPTIONS = [
+  { id: 'pay-now', label: 'Pay now', subtitle: 'Full payment' },
+  { id: 'weekly', label: 'Weekly payments', subtitle: '4 payments' },
+  { id: 'monthly', label: 'Monthly payments', subtitle: '3 payments' },
+];
 
 // ---------- CART (localStorage, per browser) ----------
 function getCart() {
@@ -39,6 +47,18 @@ function getCart() {
 
 function saveCart(cart) {
   localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function getCartCount() {
+  return getCart().reduce((sum, item) => sum + item.qty, 0);
+}
+
+function updateCartBadge() {
+  if (!cartBadge) return;
+  const count = getCartCount();
+  cartBadge.textContent = count;
+  cartBadge.style.opacity = count > 0 ? '1' : '0.65';
 }
 
 function addToCart(product) {
@@ -94,6 +114,8 @@ function renderCart() {
   }
 
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const weekly = total / 4;
+  const monthly = total / 3;
 
   cartContent.innerHTML = `
     ${cart.map((item) => `
@@ -115,6 +137,27 @@ function renderCart() {
       <span>Total</span>
       <span class="cart-total">R ${total.toFixed(2)}</span>
     </div>
+    <div class="checkout-panel">
+      <h2>Checkout</h2>
+      <p class="checkout-helper">Pick a payment style and review the total before you pay.</p>
+      <div class="payment-options">
+        ${PAYMENT_OPTIONS.map((option) => `
+          <label class="payment-option">
+            <input type="radio" name="payment-method" value="${option.id}" ${selectedPaymentMethod === option.id ? 'checked' : ''}>
+            <div>
+              <span>${option.label}</span>
+              <small>${option.subtitle}</small>
+            </div>
+          </label>
+        `).join('')}
+      </div>
+      <div class="checkout-summary">
+        <div><span>Subtotal</span><span>R ${total.toFixed(2)}</span></div>
+        <div><span>Plan</span><span>${selectedPaymentMethod === 'pay-now' ? 'Pay now' : selectedPaymentMethod === 'weekly' ? 'Weekly payments' : 'Monthly payments'}</span></div>
+        <div class="checkout-total"><strong>${selectedPaymentMethod === 'pay-now' ? `R ${total.toFixed(2)}` : selectedPaymentMethod === 'weekly' ? `4 x R ${weekly.toFixed(2)}` : `3 x R ${monthly.toFixed(2)}`}</strong></div>
+      </div>
+      <button type="button" class="btn checkout-button checkout-action">Proceed to payment</button>
+    </div>
   `;
 
   cartContent.querySelectorAll('[data-action]').forEach((btn) => {
@@ -125,6 +168,25 @@ function renderCart() {
       if (btn.dataset.action === 'remove') removeFromCart(id);
     });
   });
+
+  cartContent.querySelectorAll('input[name="payment-method"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      selectedPaymentMethod = radio.value;
+      renderCart();
+    });
+  });
+
+  const checkoutButton = cartContent.querySelector('.checkout-button');
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', () => {
+      const message = selectedPaymentMethod === 'pay-now'
+        ? `Pay R ${total.toFixed(2)} now.`
+        : selectedPaymentMethod === 'weekly'
+          ? `Pay 4 weekly payments of R ${weekly.toFixed(2)}.`
+          : `Pay 3 monthly payments of R ${monthly.toFixed(2)}.`;
+      alert(`Checkout ready! ${message}`);
+    });
+  }
 }
 
 // ---------- AUTH ----------
@@ -308,6 +370,7 @@ function initAuth() {
 
   wirePasswordToggles();
   wireForgotPassword();
+  updateCartBadge();
 
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
