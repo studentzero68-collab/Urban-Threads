@@ -92,101 +92,45 @@ function removeFromCart(id) {
   renderCart();
 }
 
-function renderCart() {
-  if (!cartContent) return;
+function renderProductCard(product) {
+  const card = document.createElement('article');
+  card.className = 'product-card';
 
-  // gate: only logged-in users can view the cart
-  if (!currentUser) {
-    cartContent.innerHTML = `
-      <div class="cart-locked">
-        <p>You need to be logged in to view your cart.</p>
-        <p><a href="login.html">Log in or sign up</a></p>
-      </div>
-    `;
-    return;
-  }
+  const img = document.createElement('img');
+  img.className = 'product-image';
+  img.src = product.image || FALLBACK_PRODUCTS[0].image;
+  img.alt = product.name || 'Product';
 
-  const cart = getCart();
+  const info = document.createElement('div');
+  info.className = 'product-info';
 
-  if (cart.length === 0) {
-    cartContent.innerHTML = '<p class="loading-msg">Your cart is empty.</p>';
-    return;
-  }
+  const category = document.createElement('p');
+  category.className = 'product-category';
+  category.textContent = product.category || 'General';
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const weekly = total / 4;
-  const monthly = total / 3;
+  const name = document.createElement('h3');
+  name.className = 'product-name';
+  name.textContent = product.name || 'Untitled product';
 
-  cartContent.innerHTML = `
-    ${cart.map((item) => `
-      <div class="cart-item">
-        <img src="${item.image}" alt="${item.name}">
-        <div class="cart-item-info">
-          <h3>${item.name}</h3>
-          <p>R ${item.price.toFixed(2)} each</p>
-        </div>
-        <div class="cart-qty">
-          <button type="button" data-action="decrease" data-id="${item.id}">-</button>
-          <span>${item.qty}</span>
-          <button type="button" data-action="increase" data-id="${item.id}">+</button>
-        </div>
-        <button type="button" class="cart-remove" data-action="remove" data-id="${item.id}">Remove</button>
-      </div>
-    `).join('')}
-    <div class="cart-summary">
-      <span>Total</span>
-      <span class="cart-total">R ${total.toFixed(2)}</span>
-    </div>
-    <div class="checkout-panel">
-      <h2>Checkout</h2>
-      <p class="checkout-helper">Pick a payment style and review the total before you pay.</p>
-      <div class="payment-options">
-        ${PAYMENT_OPTIONS.map((option) => `
-          <label class="payment-option">
-            <input type="radio" name="payment-method" value="${option.id}" ${selectedPaymentMethod === option.id ? 'checked' : ''}>
-            <div>
-              <span>${option.label}</span>
-              <small>${option.subtitle}</small>
-            </div>
-          </label>
-        `).join('')}
-      </div>
-      <div class="checkout-summary">
-        <div><span>Subtotal</span><span>R ${total.toFixed(2)}</span></div>
-        <div><span>Plan</span><span>${selectedPaymentMethod === 'pay-now' ? 'Pay now' : selectedPaymentMethod === 'weekly' ? 'Weekly payments' : 'Monthly payments'}</span></div>
-        <div class="checkout-total"><strong>${selectedPaymentMethod === 'pay-now' ? `R ${total.toFixed(2)}` : selectedPaymentMethod === 'weekly' ? `4 x R ${weekly.toFixed(2)}` : `3 x R ${monthly.toFixed(2)}`}</strong></div>
-      </div>
-      <button type="button" class="btn checkout-button checkout-action">Proceed to payment</button>
-    </div>
-  `;
+  const price = document.createElement('p');
+  price.className = 'product-price';
+  price.textContent = `R ${Number(product.price || 0).toFixed(2)}`;
 
-  cartContent.querySelectorAll('[data-action]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      if (btn.dataset.action === 'increase') changeQty(id, 1);
-      if (btn.dataset.action === 'decrease') changeQty(id, -1);
-      if (btn.dataset.action === 'remove') removeFromCart(id);
-    });
-  });
+  const addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'add-to-cart-btn';
+  addBtn.textContent = 'Add to cart';
+  addBtn.addEventListener('click', () => addToCart(product));
 
-  cartContent.querySelectorAll('input[name="payment-method"]').forEach((radio) => {
-    radio.addEventListener('change', () => {
-      selectedPaymentMethod = radio.value;
-      renderCart();
-    });
-  });
+  info.appendChild(category);
+  info.appendChild(name);
+  info.appendChild(price);
+  info.appendChild(addBtn);
 
-  const checkoutButton = cartContent.querySelector('.checkout-button');
-  if (checkoutButton) {
-    checkoutButton.addEventListener('click', () => {
-      const message = selectedPaymentMethod === 'pay-now'
-        ? `Pay R ${total.toFixed(2)} now.`
-        : selectedPaymentMethod === 'weekly'
-          ? `Pay 4 weekly payments of R ${weekly.toFixed(2)}.`
-          : `Pay 3 monthly payments of R ${monthly.toFixed(2)}.`;
-      alert(`Checkout ready! ${message}`);
-    });
-  }
+  card.appendChild(img);
+  card.appendChild(info);
+
+  return card;
 }
 
 // ---------- AUTH ----------
